@@ -1,5 +1,7 @@
 import gql from 'graphql-tag'
 
+import { typeDefs as RequirementsTypeDefs, resolvers as RequirementsResolvers } from './requirements'
+
 const RootTypeDefs = gql`
 
   type Query {
@@ -19,9 +21,12 @@ const RootTypeDefs = gql`
 
 const typeDefs = [
   RootTypeDefs,
+  RequirementsTypeDefs,
 ]
 
-const resolvers = {}
+const resolvers = {
+  ...RequirementsResolvers
+}
 
 export {
   typeDefs,

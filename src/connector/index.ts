@@ -1,15 +1,15 @@
 import * as knex from 'knex'
 
-const PUBLIC_HOST: string = '88.204.167.206'
-const PUBLIC_PORT: number = 231
+const PUBLIC_HOST: string = 'localhost'
+const PUBLIC_PORT: number = 5432
 
 export const db = knex({
   client: 'pg',
   connection: {
     host: PUBLIC_HOST,
-    database: 'gis',
-    user: 'abzal',
-    password: 'abzal123',
+    database: 'mtvspec',
+    user: 'postgres',
+    password: 'postgres',
     port: PUBLIC_PORT
   },
   debug: false
