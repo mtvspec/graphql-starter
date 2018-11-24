@@ -3,7 +3,7 @@ import gql from "graphql-tag"
 export const typeDefs = gql`
 
   extend type Query {
-    allRequirements: [Requirement!]
+    allRequirements: RequirementsConnection!
     requirement(id: ID!): Requirement!
   }
 
@@ -16,7 +16,7 @@ export const typeDefs = gql`
 
   type RequirementSource {
     id: ID!
-    source: USource!
+    source: USource
   }
 
   union USource = Stakeholder | Source
@@ -36,6 +36,26 @@ export const typeDefs = gql`
     firstName: String!
     lastName: String
     middleName: String
+  }
+
+  input NewRequirementInput {
+    title: String!
+    description: String
+  }
+
+  type RequirementsConnection {
+    totalCount: Int!
+    edges: [RequirementEdge!]
+  }
+
+  type RequirementEdge {
+    node: Requirement!
+  }
+
+  extend type Mutation {
+    createRequirement(input: NewRequirementInput!): Requirement!
+    updateRequirement(id: ID!, input: NewRequirementInput!): Requirement!
+    deleteRequirement(id: ID!): Requirement!
   }
 
 `
