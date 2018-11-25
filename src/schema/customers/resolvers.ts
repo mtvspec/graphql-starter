@@ -1,36 +1,46 @@
-import { db } from "../../connector"
+import { dataBaseService } from "../../services/database.service"
 
-class CustomerResolverService {
-  public static async fetchCustomers(obj, args, ctx, info) {
-    return await db('customer')
-      .select('id', 'name', 'description')
-      .orderBy('id')
-      .catch(e => {
-        console.error(e)
-        throw new Error('Customers fetch failed')
-      })
-  }
-  public static async fetchCustomer(obj, args, ctx, info) {
-    return await db('customer')
-      .select('id', 'name', 'description')
-      .where({ id: args.id })
-      .first()
-      .catch(e => {
-        console.error(e)
-        throw new Error('Customer fetch failed')
-      })
-  }
-  public static async createCustomerMutationResolver() {
-    throw new Error('Resolver not implemented')
-  }
-}
+const TABLE_NAME: string = 'customer'
 
 export const resolvers = {
   Query: {
-    allCustomers: CustomerResolverService.fetchCustomers,
-    customer: CustomerResolverService.fetchCustomer,
+    allCustomers: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNodes({
+        tableName: TABLE_NAME,
+        fields: Object.keys(ctx.selectionSet(info)),
+        orderBy: args.orderBy || 'id'
+      })
+    },
+    customer: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNode({
+        tableName: TABLE_NAME,
+        fields: Object.keys(ctx.selectionSet(info)),
+        target: { id: args.id }
+      })
+    },
   },
   Mutation: {
-    createCustomer: CustomerResolverService.createCustomerMutationResolver,
+    createCustomer: async (obj, args, ctx, info) => {
+      return await dataBaseService.createNode({
+        tableName: TABLE_NAME,
+        data: args.input,
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
+    updateCustomer: async (obj, args, ctx, info) => {
+      return await dataBaseService.updateNode({
+        tableName: TABLE_NAME,
+        data: args.input,
+        target: { id: args.id },
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
+    deleteCustomer: async (obj, args, ctx, info) => {
+      return await dataBaseService.deleteNode({
+        tableName: TABLE_NAME,
+        target: { id: args.id },
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
   }
 }

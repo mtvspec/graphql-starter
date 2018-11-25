@@ -1,80 +1,85 @@
-import { db } from "../../connector"
+import { dataBaseService } from "../../services/database.service"
 
-class ProjectResolverService {
-  public static async ProjectsResolver(obj, args, ctx, info) {
-    return await db('project')
-      .select('id', 'customer', 'title', 'description')
-      .orderBy('id')
-      .catch(e => {
-        console.error(e)
-        throw new Error('Projects fetch failed')
-      })
-  }
-  public static async ProjectResolver(obj, args, ctx, info) {
-    return await db('project')
-      .select('id', 'customer', 'title', 'description')
-      .where({ id: args['id'] })
-      .first()
-      .catch(e => {
-        console.error(e)
-        throw new Error('Project fetch failed')
-      })
-  }
-  public static projectTypeCustomerFieldResolver = async (obj, args, ctx, info) => {
-    return await db('customer')
-      .select('id', 'name', 'description')
-      .where({ id: obj.customer })
-      .first()
-      .catch(e => {
-        console.error(e)
-        throw new Error('Customer fetch failed')
-      })
-  }
-  public static async createProjectMutationResolver(obj, args, ctx, info) {
-    return await db('project')
-      .insert(args.input)
-      .returning('*')
-      .then(res => res[0])
-      .catch(e => {
-        console.error(e)
-        throw new Error('Project not created')
-      })
-  }
-  public static async updateProjectMutationResolver(obj, args, ctx, info) {
-    return await db('project')
-      .update(args.input)
-      .where({ id: args.id })
-      .returning('*')
-      .then(res => res[0])
-      .catch(e => {
-        console.error(e)
-        throw new Error('Project not updated')
-      })
-  }
-  public static async deleteProjectMutationResolver(obj, args, ctx, info) {
-    return await db('project')
-      .delete()
-      .where({ id: args.id })
-      .returning('*')
-      .then(res => res[0])
-      .catch(e => {
-        console.error(e)
-        throw new Error('Project not deleted')
-      })
-  }
-}
+const TABLE_NAME: string = 'project'
 
 export const resolvers = {
   Query: {
-    allProjects: ProjectResolverService.ProjectsResolver,
-    project: ProjectResolverService.ProjectResolver,
+    allProjects: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNodes({
+        tableName: TABLE_NAME,
+        fields: Object.keys(ctx.selectionSet(info)),
+        orderBy: args.orderBy || 'id'
+      })
+    },
+    project: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNode({
+        tableName: TABLE_NAME,
+        fields: Object.keys(ctx.selectionSet(info)),
+        target: { id: args.id }
+      })
+    },
+    allProjectMembers: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNodes({
+        tableName: 'project_member',
+        fields: Object.keys(ctx.selectionSet(info)),
+        orderBy: 'id'
+      })
+    }
   },
   Project: {
-    customer: ProjectResolverService.projectTypeCustomerFieldResolver,
+    customer: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNode({
+        tableName: 'customer',
+        fields: Object.keys(ctx.selectionSet(info)),
+        target: { id: obj.customer }
+      })
+    },
+  },
+  ProjectMember: {
+    project: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNode({
+        tableName: TABLE_NAME,
+        fields: Object.keys(ctx.selectionSet(info)),
+        target: { id: obj.project }
+      })
+    },
+    user: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNode({
+        tableName: 'user',
+        fields: Object.keys(ctx.selectionSet(info)),
+        target: { id: obj.user }
+      })
+    }
   },
   Mutation: {
-    createProject: ProjectResolverService.createProjectMutationResolver,
-    updateProject: ProjectResolverService.updateProjectMutationResolver,
-    deleteProject: ProjectResolverService.deleteProjectMutationResolver,
+    createProject: async (obj, args, ctx, info) => {
+      return await dataBaseService.createNode({
+        tableName: TABLE_NAME,
+        data: args.input,
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
+    updateProject: async (obj, args, ctx, info) => {
+      return await dataBaseService.updateNode({
+        tableName: TABLE_NAME,
+        data: args.input,
+        target: { id: args.id },
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
+    deleteProject: async (obj, args, ctx, info) => {
+      return await dataBaseService.deleteNode({
+        tableName: TABLE_NAME,
+        target: { id: args.id },
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
+    createProjectMember: async (obj, args, ctx, info) => {
+      return await dataBaseService.createNode({
+        tableName: 'project_member',
+        data: args.input,
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    }
   }
 }

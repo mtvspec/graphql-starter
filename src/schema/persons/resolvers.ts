@@ -1,54 +1,46 @@
-import { db } from './../../connector'
+import { dataBaseService } from '../../services/database.service'
 
-class PersonResolverService {
-  public static personsResolver = async (obj, args, ctx, info) => {
-    return await db('person')
-      .select('id', 'firstName', 'lastName', 'middleName', 'dob')
-      .catch(e => {
-        console.error(e)
-        throw new Error('Persons fetch error')
-      })
-  }
-  public static personResolver = async (obj, args, ctx, info) => {
-    return await db('person')
-      .select('id', 'firstName', 'lastName', 'middleName', 'dob')
-      .where({ id: args.id })
-      .first()
-      .catch(e => {
-        console.error(e)
-        throw new Error('Person fetch failed')
-      })
-  }
-  public static createPersonMutationResolver = async (obj, args, ctx, info) => {
-    return await db('person')
-      .insert(args.input)
-      .returning('*')
-      .then(res => res[0])
-      .catch(e => {
-        console.error(e)
-        throw new Error('Person not created')
-      })
-  }
-  public static updatePersonMutationResolver = async (obj, args, ctx, info) => {
-    return await db('person')
-      .update(args.input)
-      .where({ id: args.id })
-      .returning('*')
-      .then(res => res[0])
-      .catch(e => {
-        console.error(e)
-        throw new Error('Person not updated')
-      })
-  }
-}
+const TABLE_NAME: string = 'person'
 
 export const resolvers = {
   Query: {
-    allPersons: PersonResolverService.personsResolver,
-    person: PersonResolverService.personResolver,
+    allPersons: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNodes({
+        tableName: TABLE_NAME,
+        fields: Object.keys(ctx.selectionSet(info)),
+        orderBy: args.orderBy || 'id'
+      })
+    },
+    person: async (obj, args, ctx, info) => {
+      return await dataBaseService.getNode({
+        tableName: TABLE_NAME,
+        fields: Object.keys(ctx.selectionSet(info)),
+        target: { id: args.id }
+      })
+    },
   },
   Mutation: {
-    createPerson: PersonResolverService.createPersonMutationResolver,
-    updatePerson: PersonResolverService.updatePersonMutationResolver,
+    createPerson: async (obj, args, ctx, info) => {
+      return await dataBaseService.createNode({
+        tableName: TABLE_NAME,
+        data: args.input,
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
+    updatePerson: async (obj, args, ctx, info) => {
+      return await dataBaseService.updateNode({
+        tableName: TABLE_NAME,
+        data: args.input,
+        target: { id: args.id },
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
+    deletePerson: async (obj, args, ctx, info) => {
+      return await dataBaseService.deleteNode({
+        tableName: TABLE_NAME,
+        target: { id: args.id },
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    }
   }
 }

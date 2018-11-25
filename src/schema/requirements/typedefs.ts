@@ -28,7 +28,7 @@ export const typeDefs = gql`
 
   type RequirementsConnection {
     totalCount: Int!
-    edges: [RequirementEdge!]
+    requirements: [Requirement!]
   }
 
   type RequirementEdge {

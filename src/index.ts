@@ -5,6 +5,7 @@ import { db } from './connector'
 import { typeDefs, resolvers } from './schema'
 import { GraphQLError } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
+import * as selectionSet from 'graphql-fields'
 
 // Require the module
 import * as createGraphQLLogger from 'graphql-log'
@@ -30,6 +31,10 @@ const context = async ({ req, res }) => {
   if (req.body.query) console.log('\nQuery:\n\n', req.body.query, '\n')
   if (req.body.variables) console.log('Variables:\n\n', req.body.variables, '\n')
   if (req.headers['authorization']) return { session: { token: req.headers['authorization'].substring(7) } }
+
+  return {
+    selectionSet
+  }
 
 }
 

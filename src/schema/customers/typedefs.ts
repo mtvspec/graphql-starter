@@ -20,6 +20,8 @@ export const typeDefs = gql`
 
   extend type Mutation {
     createCustomer(input: NewCustomerInput!): Customer!
+    updateCustomer(id: ID! input: NewCustomerInput!): Customer!
+    deleteCustomer(id: ID!): Customer!
   }
 
 `

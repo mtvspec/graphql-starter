@@ -1,38 +1,36 @@
+import { dataBaseService, DatabaseService } from '../../services/database.service'
+
+const TABLE_NAME: string = 'requirement'
+
 import { db } from './../../connector'
 
+class RequirementService {
+  private readonly tableName: string = 'requirement'
+  private fields: Promise<string[]>
+  constructor(private dataBaseService: DatabaseService) {
+    this.fields = this.dataBaseService.fetchTableFields('requirement')
+    console.log(this.fields);
+
+  }
+  public async fetchRequirements(fields, orderBy) {
+    return await this.dataBaseService.getNodes({
+      tableName: this.tableName,
+      fields,
+      orderBy
+    })
+  }
+  public async fetchRequirement(config) {
+    return await this.dataBaseService.getNode({
+      tableName: this.tableName,
+      fields: config.fields,
+      target: config.target
+    })
+  }
+}
+
+const rs = new RequirementService(dataBaseService)
+
 class RequirementResolverService {
-  public static requirementsTotalCountFieldResolver = async (obj, args, ctx, info) => {
-    return await db('requirement')
-      .count('id as totalCount')
-      .first()
-      .then(res => res.totalCount)
-      .catch(e => {
-        console.error(e)
-        throw new Error('Requirements total count fetch failed')
-      })
-  }
-  public static requirementsEdgesResolver = async (obj, args, ctx, info) => {
-    return await db('requirement')
-      .select('id', 'title', 'description')
-      .catch(e => {
-        console.error(e)
-        throw new Error('Requirements fetch failed')
-      })
-  }
-  public static requirementResolver = async (obj, args, ctx, info) => {
-    if (args['id']) {
-      const id = args.id
-      return await db('requirement')
-        .select('id', 'title', 'description')
-        .where({ id })
-        .first()
-        .catch(e => console.error(e))
-    } else if (obj && obj['id']) {
-      return obj
-    } else {
-      throw new Error('Requirement ID not provided')
-    }
-  }
   public static requirementSourceFieldResolver = async (obj, args, ctx, info) => {
     const source = await db('requirement_source')
       .where({ requirement: obj['id'] })
@@ -71,35 +69,61 @@ class RequirementResolverService {
       }
     }
   }
-  public static createRequirementMutationResolver = async (obj, args, ctx, info) => {
-    return await db('requirement')
-      .insert(args.input)
-      .returning('*')
-      .then(res => res[0])
-      .catch(e => {
-        console.error(e)
-        throw new Error('Requirement not created')
-      })
-  }
 }
 
 export const resolvers = {
   Query: {
     allRequirements: () => ({}),
-    requirement: RequirementResolverService.requirementResolver,
+    requirement: async (obj, args, ctx, info) => {
+      return await rs.fetchRequirement({
+        fields: Object.keys(ctx.selectionSet(info)),
+        target: { id: args.id }
+      })
+    },
   },
   Requirement: {
-    requirementSource: RequirementResolverService.requirementSourceFieldResolver,
+    requirementSource: async (obj, args, ctx, info) => {
+      const source = await dataBaseService.getNode({
+        tableName: 'requirement_source',
+        fields: ['*'],
+        target: { requirement: obj.id }
+      })
+      if (source) {
+        return source
+      } else {
+        const stakeholder = await db('requirement_stakeholder')
+          .where({ requirement: obj['id'] })
+          .first()
+          .catch(e => console.error(e))
+        if (stakeholder) {
+          return stakeholder
+        }
+      }
+    },
   },
   RequirementSource: {
     source: RequirementResolverService.sourceFieldResolver
   },
   RequirementsConnection: {
-    totalCount: RequirementResolverService.requirementsTotalCountFieldResolver,
-    edges: RequirementResolverService.requirementsEdgesResolver,
+    totalCount: () => {
+      return dataBaseService.getNodesCount({
+        tableName: TABLE_NAME,
+        countFieldName: 'id',
+        as: 'totalCount'
+      })
+    },
+    requirements: (obj, args, ctx, info) => {
+      return dataBaseService.getNodes({
+        tableName: TABLE_NAME,
+        fields: ['id', 'title', 'description'],
+        orderBy: args.orderBy || 'id'
+      })
+    },
   },
   RequirementEdge: {
-    node: RequirementResolverService.requirementResolver,
+    node: (obj) => {
+      return obj
+    },
   },
   USource: {
     __resolveType(obj, args, ctx, info) {
@@ -113,6 +137,12 @@ export const resolvers = {
     }
   },
   Mutation: {
-    createRequirement: RequirementResolverService.createRequirementMutationResolver,
+    createRequirement: (obj, args, ctx, info) => {
+      return dataBaseService.createNode({
+        tableName: TABLE_NAME,
+        data: args.input,
+        returning: Object.keys(ctx.selectionSet(info))
+      })
+    },
   }
 }
