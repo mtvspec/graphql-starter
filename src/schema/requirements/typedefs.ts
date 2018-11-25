@@ -26,23 +26,6 @@ export const typeDefs = gql`
     source: String!
   }
 
-  type Stakeholder {
-    id: ID!
-    person: Person!
-  }
-
-  type Person {
-    id: ID!
-    firstName: String!
-    lastName: String
-    middleName: String
-  }
-
-  input NewRequirementInput {
-    title: String!
-    description: String
-  }
-
   type RequirementsConnection {
     totalCount: Int!
     edges: [RequirementEdge!]
@@ -52,9 +35,24 @@ export const typeDefs = gql`
     node: Requirement!
   }
 
+  input NewRequirementInput {
+    title: String!
+    description: String
+  }
+
+  input NewSourceInput {
+    type: Int!
+    source: String!
+  }
+
+  input NewSourceOfTypeStakeholderInput {
+    requirement: ID!
+    person: ID!
+  }
+
   extend type Mutation {
     createRequirement(input: NewRequirementInput!): Requirement!
-    updateRequirement(id: ID!, input: NewRequirementInput!): Requirement!
+    updateRequirement(id: ID! input: NewRequirementInput!): Requirement!
     deleteRequirement(id: ID!): Requirement!
   }
 
