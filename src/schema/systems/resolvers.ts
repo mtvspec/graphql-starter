@@ -8,14 +8,14 @@ export const resolvers = {
     allSystems: async (obj, { orderBy = 'id' }, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: SYSTEM_TABLE_NAME,
-        fields: ['id', 'name', 'description'], // TODO: refactor this (systemComponents - derrived field)
+        fields: ['id', 'name', 'description'], // TODO: refactor this (systemComponents - derived field)
         orderBy,
       })
     },
     system: async (obj, { id }, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: SYSTEM_TABLE_NAME,
-        fields: ['id', 'name', 'description'], // TODO: refactor this (systemComponents - derrived field)
+        fields: ['id', 'name', 'description'], // TODO: refactor this (systemComponents - derived field)
         target: { id },
       })
     },
