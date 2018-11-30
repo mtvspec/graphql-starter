@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from "graphql-tag"
 
 export const typeDefs = gql`
 
@@ -13,14 +13,14 @@ export const typeDefs = gql`
     description: String
   }
 
-  input NewCustomerInput {
+  input NewCustomerData {
     name: String!
     description: String
   }
 
   extend type Mutation {
-    createCustomer(input: NewCustomerInput!): Customer!
-    updateCustomer(id: ID! input: NewCustomerInput!): Customer!
+    createCustomer(input: NewCustomerData!): Customer!
+    updateCustomer(id: ID! input: NewCustomerData!): Customer!
     deleteCustomer(id: ID!): Customer!
   }
 

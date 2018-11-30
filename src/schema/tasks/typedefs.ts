@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from "graphql-tag"
 
 export const typeDefs = gql`
 
@@ -15,7 +15,7 @@ export const typeDefs = gql`
     description: String
   }
 
-  input NewTask {
+  input NewTaskData {
     title: String!
     description: String
   }
@@ -26,16 +26,16 @@ export const typeDefs = gql`
     assignee: ProjectMember!
   }
 
-  input NewAssignee {
+  input NewAssigneeData {
     task: ID!
     assignee: ID!
   }
 
   extend type Mutation {
-    createTask(input: NewTask!): Task!
-    updateTask(id: ID! input: NewTask!): Task!
+    createTask(input: NewTaskData!): Task!
+    updateTask(id: ID! input: NewTaskData!): Task!
     deleteTask(id: ID!): Task!
-    setAssignee(input: NewAssignee!): Assignee!
+    setAssignee(input: NewAssigneeData!): Assignee!
     unsetAssignee(id: ID!): Assignee!
   }
 

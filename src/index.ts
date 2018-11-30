@@ -33,7 +33,10 @@ const context = async ({ req, res }) => {
   if (req.headers['authorization']) return { session: { token: req.headers['authorization'].substring(7) } }
 
   return {
-    selectionSet
+    selectionSet,
+    requestedFields: (ast) => {
+      return Object.keys(selectionSet(ast))
+    }
   }
 
 }

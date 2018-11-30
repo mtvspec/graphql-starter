@@ -15,7 +15,7 @@ export const typeDefs = gql`
     description: String
   }
 
-  input NewProjectInput {
+  input NewProjectData {
     customer: ID!
     title: String!
     description: String
@@ -27,16 +27,18 @@ export const typeDefs = gql`
     user: User!
   }
 
-  input NewProjectMember {
+  input NewProjectMemberData {
     project: ID!
     user: ID!
   }
 
   extend type Mutation {
-    createProject(input: NewProjectInput!): Project!
-    updateProject(id: ID! input: NewProjectInput!): Project!
+    createProject(input: NewProjectData!): Project!
+    updateProject(id: ID! input: NewProjectData!): Project!
     deleteProject(id: ID!): Project!
-    createProjectMember(input: NewProjectMember!): ProjectMember!
+    createProjectMember(input: NewProjectMemberData!): ProjectMember!
+    updateProjectMember(id: ID! input: NewProjectMemberData!): ProjectMember!
+    deleteProjectMember(id: ID!): ProjectMember!
   }
 
 `

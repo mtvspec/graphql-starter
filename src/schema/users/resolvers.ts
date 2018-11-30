@@ -8,7 +8,7 @@ export const resolvers = {
     allUsers: (obj, args, ctx, info) => {
       return dataBaseService.getNodes({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         orderBy: 'id'
       })
     }
@@ -17,7 +17,7 @@ export const resolvers = {
     person: (obj, args, ctx, info) => {
       return dataBaseService.getNode({
         tableName: 'person',
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: obj.person }
       })
     }
@@ -29,7 +29,7 @@ export const resolvers = {
       return dataBaseService.createNode({
         tableName: TABLE_NAME,
         data: args.input,
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     },
     updateUser: (obj, args, ctx, info) => {
@@ -37,14 +37,14 @@ export const resolvers = {
         tableName: TABLE_NAME,
         data: args.input,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     },
     deleteUser: (obj, args, ctx, info) => {
       return dataBaseService.deleteNode({
         tableName: TABLE_NAME,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     }
   }

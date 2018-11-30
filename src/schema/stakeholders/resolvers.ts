@@ -1,57 +1,55 @@
-import { db } from './../../connector'
+import { dataBaseService } from '../../services/database.service'
 
-class StakeholderResolverService {
-  public static stakeholderPersonFieldResolver = async (obj, args, ctx, info) => {
-    return await db('person')
-      .select('id', 'firstName', 'lastName', 'middleName')
-      .where({ id: obj.person })
-      .first()
-      .catch(e => console.error(e))
-  }
-  public static stakeholdersResolver = async (obj, args, ctx, info) => {
-    return await db('stakeholder')
-      .select('id', 'person')
-      .catch(e => {
-        console.error(e)
-        throw new Error('Stakeholders fetch error')
-      })
-  }
-  public static stakeholderResolver = async (obj, args, ctx, info) => {
-    if (args['id']) {
-      const id = args.id
-      return await db('stakeholder')
-        .select('id', 'person')
-        .where({ id })
-        .first()
-        .catch(e => {
-          console.error(e)
-          throw new Error('Stakeholder ID not provided')
-        })
-    } else if (obj && obj['id']) {
-      return obj
-    }
-  }
-  public static createStakeholderMutationResolver = async (obj, args, ctx, info) => {
-    return await db('stakeholder')
-      .insert(args.input)
-      .returning('*')
-      .then(res => res[0])
-      .catch(e => {
-        console.error(e)
-        throw new Error('Stakeholder not created')
-      })
-  }
-}
+const STAKEHOLDER_TABLE_NAME: string = 'stakeholder'
 
 export const resolvers = {
   Query: {
-    allStakeholders: StakeholderResolverService.stakeholdersResolver,
-    stakeholder: StakeholderResolverService.stakeholderResolver,
+    allStakeholders: (obj, args, ctx, info) => {
+      return dataBaseService.getNodes({
+        tableName: STAKEHOLDER_TABLE_NAME,
+        fields: ctx.requestedFields(info),
+        orderBy: args.orderBy || 'id'
+      })
+    },
+    stakeholder: (obj, args, ctx, info) => {
+      return dataBaseService.getNode({
+        tableName: STAKEHOLDER_TABLE_NAME,
+        fields: ctx.requestedFields(info),
+        target: { id: args.id }
+      })
+    },
   },
   Stakeholder: {
-    person: StakeholderResolverService.stakeholderPersonFieldResolver
+    person: (obj, args, ctx, info) => {
+      return dataBaseService.getNode({
+        tableName: 'person',
+        fields: ctx.requestedFields(info),
+        target: { id: obj.person }
+      })
+    },
   },
   Mutation: {
-    createStakeholder: StakeholderResolverService.createStakeholderMutationResolver,
+    createStakeholder: (obj, args, ctx, info) => {
+      return dataBaseService.createNode({
+        tableName: STAKEHOLDER_TABLE_NAME,
+        data: args.input,
+        returning: ctx.requestedFields(info),
+      })
+    },
+    updateStakeholder: (obj, args, ctx, info) => {
+      return dataBaseService.updateNode({
+        tableName: STAKEHOLDER_TABLE_NAME,
+        data: args.input,
+        target: { id: args.id },
+        returning: ctx.requestedFields(info),
+      })
+    },
+    deleteStakeholder: (obj, args, ctx, info) => {
+      return dataBaseService.deleteNode({
+        tableName: STAKEHOLDER_TABLE_NAME,
+        target: { id: args.id },
+        returning: ctx.requestedFields(info),
+      })
+    },
   }
 }

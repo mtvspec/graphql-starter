@@ -10,6 +10,7 @@ export const typeDefs = gql`
   type Stakeholder {
     id: ID!
     person: Person!
+    statements: [Statement!]
   }
 
   input NewStakeholderInput {
@@ -18,7 +19,8 @@ export const typeDefs = gql`
 
   extend type Mutation {
     createStakeholder(input: NewStakeholderInput!): Stakeholder!
+    updateStakeholder(id: ID! input: NewStakeholderInput!): Stakeholder!
+    deleteStakeholder(id: ID!): Stakeholder!
   }
-
 
 `

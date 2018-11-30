@@ -1,19 +1,20 @@
 import { dataBaseService } from "../../services/database.service"
 
-const TABLE_NAME: string = 'task'
+const TASK_TABLE_NAME: string = 'task'
+const TASK_ASSIGNEE_TABLE_NAME: string = 'task_assignee'
 
 export const resolvers = {
   Query: {
     allTasks: async (obj, args, ctx, info) => {
       return await dataBaseService.getNodes({
-        tableName: TABLE_NAME,
+        tableName: TASK_TABLE_NAME,
         fields: Object.keys(ctx.selectionSet(info)),
         orderBy: 'id',
       })
     },
     task: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
-        tableName: TABLE_NAME,
+        tableName: TASK_TABLE_NAME,
         fields: Object.keys(ctx.selectionSet(info)),
         target: { id: args.id },
       })
@@ -36,7 +37,7 @@ export const resolvers = {
   Assignee: {
     task: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
-        tableName: 'task',
+        tableName: TASK_TABLE_NAME,
         fields: Object.keys(ctx.selectionSet(info)),
         target: { id: obj.task },
       })
@@ -52,14 +53,14 @@ export const resolvers = {
   Mutation: {
     createTask: async (obj, args, ctx, info) => {
       return await dataBaseService.createNode({
-        tableName: TABLE_NAME,
+        tableName: TASK_TABLE_NAME,
         data: args.input,
         returning: Object.keys(ctx.selectionSet(info)),
       })
     },
     updateTask: async (obj, args, ctx, info) => {
       return await dataBaseService.updateNode({
-        tableName: TABLE_NAME,
+        tableName: TASK_TABLE_NAME,
         data: args.input,
         target: { id: args.id },
         returning: Object.keys(ctx.selectionSet(info)),
@@ -67,21 +68,21 @@ export const resolvers = {
     },
     deleteTask: async (obj, args, ctx, info) => {
       return await dataBaseService.deleteNode({
-        tableName: TABLE_NAME,
+        tableName: TASK_TABLE_NAME,
         target: { id: args.id },
         returning: Object.keys(ctx.selectionSet(info)),
       })
     },
     setAssignee: async (obj, args, ctx, info) => {
       return await dataBaseService.createNode({
-        tableName: 'task_assignee',
+        tableName: TASK_ASSIGNEE_TABLE_NAME,
         data: args.input,
         returning: Object.keys(ctx.selectionSet(info)),
       })
     },
     unsetAssignee: async (obj, args, ctx, info) => {
       return await dataBaseService.deleteNode({
-        tableName: 'task_assignee',
+        tableName: TASK_ASSIGNEE_TABLE_NAME,
         target: { id: args.id },
         returning: Object.keys(ctx.selectionSet(info)),
       })

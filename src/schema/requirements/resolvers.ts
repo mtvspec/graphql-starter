@@ -2,82 +2,14 @@ import { dataBaseService, DatabaseService } from '../../services/database.servic
 
 const TABLE_NAME: string = 'requirement'
 
-import { db } from './../../connector'
-
-class RequirementService {
-  private readonly tableName: string = 'requirement'
-  private fields: Promise<string[]>
-  constructor(private dataBaseService: DatabaseService) {
-    this.fields = this.dataBaseService.fetchTableFields('requirement')
-    console.log(this.fields);
-
-  }
-  public async fetchRequirements(fields, orderBy) {
-    return await this.dataBaseService.getNodes({
-      tableName: this.tableName,
-      fields,
-      orderBy
-    })
-  }
-  public async fetchRequirement(config) {
-    return await this.dataBaseService.getNode({
-      tableName: this.tableName,
-      fields: config.fields,
-      target: config.target
-    })
-  }
-}
-
-const rs = new RequirementService(dataBaseService)
-
-class RequirementResolverService {
-  public static requirementSourceFieldResolver = async (obj, args, ctx, info) => {
-    const source = await db('requirement_source')
-      .where({ requirement: obj['id'] })
-      .first()
-      .catch(e => console.error(e))
-    if (source) {
-      return source
-    } else {
-      const stakeholder = await db('requirement_stakeholder')
-        .where({ requirement: obj['id'] })
-        .first()
-        .catch(e => console.error(e))
-      if (stakeholder) {
-        return stakeholder
-      }
-    }
-  }
-  public static sourceFieldResolver = async (obj, args, ctx, info) => {
-    if (obj.source) {
-      const requirement_source = await db('source')
-        .where({ id: obj.source })
-        .first()
-        .catch(e => console.error(e))
-      if (requirement_source) {
-        return requirement_source
-      }
-    } else if (obj.stakeholder) {
-      const requirement_stakeholder = await db('stakeholder')
-        .where({ id: obj.stakeholder })
-        .first()
-        .catch(e => console.error(e))
-      if (requirement_stakeholder) {
-        return requirement_stakeholder
-      } else {
-        return null
-      }
-    }
-  }
-}
-
 export const resolvers = {
   Query: {
     allRequirements: () => ({}),
-    requirement: async (obj, args, ctx, info) => {
-      return await rs.fetchRequirement({
-        fields: Object.keys(ctx.selectionSet(info)),
-        target: { id: args.id }
+    requirement: async (obj, { id }, ctx, info) => {
+      return await dataBaseService.getNode({
+        tableName: TABLE_NAME,
+        fields: ['id', 'title', 'description'],
+        target: { id },
       })
     },
   },
@@ -85,16 +17,17 @@ export const resolvers = {
     requirementSource: async (obj, args, ctx, info) => {
       const source = await dataBaseService.getNode({
         tableName: 'requirement_source',
-        fields: ['*'],
+        fields: ['id', 'requirement', 'source'],
         target: { requirement: obj.id }
       })
       if (source) {
         return source
       } else {
-        const stakeholder = await db('requirement_stakeholder')
-          .where({ requirement: obj['id'] })
-          .first()
-          .catch(e => console.error(e))
+        const stakeholder = await dataBaseService.getNode({
+          tableName: 'requirement_stakeholder',
+          fields: ['id', 'requirement', 'stakeholder'],
+          target: { requirement: obj.id }
+        })
         if (stakeholder) {
           return stakeholder
         }
@@ -102,7 +35,29 @@ export const resolvers = {
     },
   },
   RequirementSource: {
-    source: RequirementResolverService.sourceFieldResolver
+    source: async (obj, args, ctx, info) => {
+      if (obj.source) {
+        const requirement_source = await dataBaseService.getNode({
+          tableName: 'source',
+          fields: ['id', 'source'],
+          target: { id: obj.source }
+        })
+        if (requirement_source) {
+          return requirement_source
+        }
+      } else if (obj.stakeholder) {
+        const requirement_stakeholder = await dataBaseService.getNode({
+          tableName: 'stakeholder',
+          fields: ['id', 'person'],
+          target: { id: obj.stakeholder }
+        })
+        if (requirement_stakeholder) {
+          return requirement_stakeholder
+        } else {
+          return null
+        }
+      }
+    }
   },
   RequirementsConnection: {
     totalCount: () => {
@@ -132,16 +87,31 @@ export const resolvers = {
       } else if (obj.source) {
         return 'Source'
       } else {
-        return null
+        throw new Error('Unrecognized requirement source type')
       }
     }
   },
   Mutation: {
-    createRequirement: (obj, args, ctx, info) => {
+    createRequirement: (obj, { input }, ctx, info) => {
       return dataBaseService.createNode({
         tableName: TABLE_NAME,
-        data: args.input,
-        returning: Object.keys(ctx.selectionSet(info))
+        data: input,
+        returning: ctx.requestedFields(info),
+      })
+    },
+    updateRequirement: (obj, { id, input }, ctx, info) => {
+      return dataBaseService.updateNode({
+        tableName: TABLE_NAME,
+        data: input,
+        target: { id },
+        returning: ctx.requestedFields(info),
+      })
+    },
+    deleteRequirement: (obj, { id }, ctx, info) => {
+      return dataBaseService.deleteNode({
+        tableName: TABLE_NAME,
+        target: { id },
+        returning: ctx.requestedFields(info)
       })
     },
   }
