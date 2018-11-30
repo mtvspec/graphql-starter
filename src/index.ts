@@ -4,7 +4,6 @@ import * as knexLogger from 'knex-logger'
 import { db } from './connector'
 import { typeDefs, resolvers } from './schema'
 import { GraphQLError } from 'graphql'
-import { makeExecutableSchema } from 'graphql-tools'
 import * as selectionSet from 'graphql-fields'
 
 // Require the module
@@ -16,10 +15,7 @@ const logExecutions = createGraphQLLogger({
 })
 
 // Wrap your resolvers
-logExecutions(resolvers);
-
-// Error logger
-const schema = makeExecutableSchema({ typeDefs, resolvers })
+logExecutions(resolvers)
 
 const context = async ({ req, res }) => {
 
@@ -33,7 +29,10 @@ const context = async ({ req, res }) => {
   if (req.headers['authorization']) return { session: { token: req.headers['authorization'].substring(7) } }
 
   return {
-    selectionSet
+    selectionSet,
+    requestedFields: (ast) => {
+      return Object.keys(selectionSet(ast))
+    }
   }
 
 }
@@ -65,4 +64,3 @@ app.use((req, res, next) => {
 })
 server.applyMiddleware({ app })
 app.listen({ port: 3000 }), () => { console.log(`🚀 Server ready at http://localhost:3000`) }
-

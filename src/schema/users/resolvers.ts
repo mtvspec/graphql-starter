@@ -1,4 +1,4 @@
-import { dataBaseService } from "../../services/database.service"
+import { dataBaseService } from '../../services/database.service'
 import * as bcrypt from 'bcrypt'
 
 const TABLE_NAME: string = 'user'

@@ -1,6 +1,6 @@
 import * as knex from 'knex'
 
-const PUBLIC_HOST: string = 'localhost'
+const PUBLIC_HOST: string = '127.0.0.1'
 const PUBLIC_PORT: number = 5432
 
 export const db = knex({

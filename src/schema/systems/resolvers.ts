@@ -9,7 +9,7 @@ export const resolvers = {
       return await dataBaseService.getNodes({
         tableName: TABLE_NAME,
         fields: ['id', 'name', 'description'], // TODO: refactor this
-        orderBy: 'id',
+        orderBy: args.orderBy || 'id',
       })
     },
     system: async (obj, args, ctx, info) => {
@@ -22,14 +22,14 @@ export const resolvers = {
     allSystemComponents: async (obj, args, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
-        orderBy: 'id',
+        fields: ctx.requestedFields(info),
+        orderBy: args.orderBy || 'id',
       })
     },
     systemComponent: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: args.id },
       })
     },
@@ -38,9 +38,9 @@ export const resolvers = {
     systemComponents: async (obj, args, ctx, info) => {
       return await dataBaseService.getNodesByTarget({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { system: obj.id },
-        orderBy: 'id'
+        orderBy: args.orderBy || 'id'
       })
     }
   },
@@ -48,7 +48,7 @@ export const resolvers = {
     system: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: obj.system }
       })
     }
@@ -58,7 +58,7 @@ export const resolvers = {
       return await dataBaseService.createNode({
         tableName: TABLE_NAME,
         data: args.input,
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     updateSystem: async (obj, args, ctx, info) => {
@@ -66,21 +66,21 @@ export const resolvers = {
         tableName: TABLE_NAME,
         data: args.input,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     deleteSystem: async (obj, args, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: TABLE_NAME,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     createSystemComponent: async (obj, args, ctx, info) => {
       return await dataBaseService.createNode({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
         data: args.input,
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     updateSystemComponent: async (obj, args, ctx, info) => {
@@ -88,14 +88,14 @@ export const resolvers = {
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
         data: args.input,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     deleteSystemComponent: async (obj, args, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
   }

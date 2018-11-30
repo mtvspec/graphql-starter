@@ -7,28 +7,28 @@ export const resolvers = {
     allTasks: async (obj, args, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         orderBy: 'id',
       })
     },
     task: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: args.id },
       })
     },
     allAssignees: async (obj, args, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: 'task_assignee',
-        fields: Object.keys(ctx.selectionSet(info)),
-        orderBy: 'id',
+        fields: ctx.requestedFields(info),
+        orderBy: args.orderBy || 'id',
       })
     },
     assignee: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: 'task_assignee',
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: args.id },
       })
     }
@@ -37,14 +37,14 @@ export const resolvers = {
     task: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: 'task',
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: obj.task },
       })
     },
     assignee: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: 'project_member',
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: obj.assignee },
       })
     }
@@ -54,7 +54,7 @@ export const resolvers = {
       return await dataBaseService.createNode({
         tableName: TABLE_NAME,
         data: args.input,
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     updateTask: async (obj, args, ctx, info) => {
@@ -62,28 +62,28 @@ export const resolvers = {
         tableName: TABLE_NAME,
         data: args.input,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     deleteTask: async (obj, args, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: TABLE_NAME,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     setAssignee: async (obj, args, ctx, info) => {
       return await dataBaseService.createNode({
         tableName: 'task_assignee',
         data: args.input,
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     },
     unsetAssignee: async (obj, args, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: 'task_assignee',
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info)),
+        returning: ctx.requestedFields(info),
       })
     }
   }
