@@ -16,7 +16,7 @@ export const typeDefs = gql`
     systemComponents: [SystemComponent!]
   }
 
-  input NewSystem {
+  input NewSystemData {
     name:  String!
     description: String
   }
@@ -28,18 +28,18 @@ export const typeDefs = gql`
     description: String
   }
 
-  input NewSystemComponent {
+  input NewSystemComponentData {
     system: ID!
     name: String!
     description: String
   }
 
   extend type Mutation {
-    createSystem(input: NewSystem!): System!
-    updateSystem(id: ID! input: NewSystem!): System!
+    createSystem(input: NewSystemData!): System!
+    updateSystem(id: ID! input: NewSystemData!): System!
     deleteSystem(id: ID!): System!
-    createSystemComponent(input: NewSystemComponent!): SystemComponent!
-    updateSystemComponent(id: ID! input: NewSystemComponent!): SystemComponent!
+    createSystemComponent(input: NewSystemComponentData!): SystemComponent!
+    updateSystemComponent(id: ID! input: NewSystemComponentData!): SystemComponent!
     deleteSystemComponent(id: ID!): SystemComponent!
   }
 

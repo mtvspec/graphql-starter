@@ -8,6 +8,7 @@ import { typeDefs as StakeholderTypeDefs, resolvers as StakeholderResolvers } fr
 import { typeDefs as RequirementsTypeDefs, resolvers as RequirementsResolvers } from './requirements'
 import { typeDefs as TaskTypeDefs, resolvers as TaskResolvers } from './tasks'
 import { typeDefs as SystemTypeDefs, resolvers as SystemResolvers } from './systems'
+import { typeDefs as StatementTypeDefs, resolvers as StatementResolvers } from './statements'
 
 const RootTypeDefs = gql`
 
@@ -36,6 +37,7 @@ const typeDefs = [
   RequirementsTypeDefs,
   TaskTypeDefs,
   SystemTypeDefs,
+  StatementTypeDefs,
 ]
 
 const resolvers = {
@@ -47,6 +49,7 @@ const resolvers = {
   ...RequirementsResolvers,
   ...TaskResolvers,
   ...SystemResolvers,
+  ...StakeholderResolvers,
   Query: {
     ...PersonResolvers.Query,
     ...UserResolvers.Query,
@@ -56,6 +59,7 @@ const resolvers = {
     ...RequirementsResolvers.Query,
     ...TaskResolvers.Query,
     ...SystemResolvers.Query,
+    ...StatementResolvers.Query,
   },
   Mutation: {
     ...PersonResolvers.Mutation,
@@ -66,6 +70,7 @@ const resolvers = {
     ...RequirementsResolvers.Mutation,
     ...TaskResolvers.Mutation,
     ...SystemResolvers.Mutation,
+    ...StatementResolvers.Mutation,
   }
 }
 

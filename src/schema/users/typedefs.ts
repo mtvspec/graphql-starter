@@ -14,20 +14,20 @@ export const typeDefs = gql`
     email: String
   }
 
-  input NewUserInput {
+  input NewUserData {
     person: ID!
     username: String!
     password: String!
     email: String
   }
 
-  input UpdateUserInput {
+  input UpdatedUserData {
     email: String
   }
 
   extend type Mutation {
-    createUser(input: NewUserInput!): User!
-    updateUser(id: ID! input: UpdateUserInput!): User!
+    createUser(input: NewUserData!): User!
+    updateUser(id: ID! input: UpdatedUserData!): User!
     deleteUser(id: ID!): User!
   }
 

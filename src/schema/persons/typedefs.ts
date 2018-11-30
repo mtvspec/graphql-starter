@@ -15,7 +15,7 @@ export const typeDefs = gql`
     dob: String
   }
 
-  input NewPersonInput {
+  input NewPersonData {
     firstName: PersonFirstName!
     lastName: String
     middleName: String
@@ -25,8 +25,8 @@ export const typeDefs = gql`
   scalar PersonFirstName
 
   extend type Mutation {
-    createPerson(input: NewPersonInput!): Person!
-    updatePerson(id: ID! input: NewPersonInput!): Person!
+    createPerson(input: NewPersonData!): Person!
+    updatePerson(id: ID! input: NewPersonData!): Person!
     deletePerson(id: ID!): Person!
   }
 

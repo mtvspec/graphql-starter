@@ -7,21 +7,21 @@ export const resolvers = {
     allProjects: async (obj, args, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         orderBy: args.orderBy || 'id'
       })
     },
     project: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: args.id }
       })
     },
     allProjectMembers: async (obj, args, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: 'project_member',
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         orderBy: 'id'
       })
     }
@@ -30,7 +30,7 @@ export const resolvers = {
     customer: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: 'customer',
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: obj.customer }
       })
     },
@@ -39,14 +39,14 @@ export const resolvers = {
     project: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: obj.project }
       })
     },
     user: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: 'user',
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: obj.user }
       })
     }
@@ -56,7 +56,7 @@ export const resolvers = {
       return await dataBaseService.createNode({
         tableName: TABLE_NAME,
         data: args.input,
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     },
     updateProject: async (obj, args, ctx, info) => {
@@ -64,21 +64,21 @@ export const resolvers = {
         tableName: TABLE_NAME,
         data: args.input,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     },
     deleteProject: async (obj, args, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: TABLE_NAME,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     },
     createProjectMember: async (obj, args, ctx, info) => {
       return await dataBaseService.createNode({
         tableName: 'project_member',
         data: args.input,
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     }
   }

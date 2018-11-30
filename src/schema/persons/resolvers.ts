@@ -7,14 +7,14 @@ export const resolvers = {
     allPersons: async (obj, args, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         orderBy: args.orderBy || 'id'
       })
     },
     person: async (obj, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
+        fields: ctx.requestedFields(info),
         target: { id: args.id }
       })
     },
@@ -24,7 +24,7 @@ export const resolvers = {
       return await dataBaseService.createNode({
         tableName: TABLE_NAME,
         data: args.input,
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     },
     updatePerson: async (obj, args, ctx, info) => {
@@ -32,14 +32,14 @@ export const resolvers = {
         tableName: TABLE_NAME,
         data: args.input,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     },
     deletePerson: async (obj, args, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: TABLE_NAME,
         target: { id: args.id },
-        returning: Object.keys(ctx.selectionSet(info))
+        returning: ctx.requestedFields(info),
       })
     }
   }
