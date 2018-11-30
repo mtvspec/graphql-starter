@@ -1,44 +1,44 @@
 import { dataBaseService } from "../../services/database.service"
 
-const TABLE_NAME: string = 'customer'
+const CUSTOMER_TABLE_NAME: string = 'customer'
 
 export const resolvers = {
   Query: {
-    allCustomers: async (obj, args, ctx, info) => {
+    allCustomers: async (obj, { orderBy = 'id' }, ctx, info) => {
       return await dataBaseService.getNodes({
-        tableName: TABLE_NAME,
+        tableName: CUSTOMER_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        orderBy: args.orderBy || 'id'
+        orderBy,
       })
     },
-    customer: async (obj, args, ctx, info) => {
+    customer: async (obj, { id }, ctx, info) => {
       return await dataBaseService.getNode({
-        tableName: TABLE_NAME,
+        tableName: CUSTOMER_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        target: { id: args.id }
+        target: { id }
       })
     },
   },
   Mutation: {
-    createCustomer: async (obj, args, ctx, info) => {
+    createCustomer: async (obj, { data }, ctx, info) => {
       return await dataBaseService.createNode({
-        tableName: TABLE_NAME,
-        data: args.input,
+        tableName: CUSTOMER_TABLE_NAME,
+        data,
         returning: ctx.requestedFields(info),
       })
     },
-    updateCustomer: async (obj, args, ctx, info) => {
+    updateCustomer: async (obj, { id, data }, ctx, info) => {
       return await dataBaseService.updateNode({
-        tableName: TABLE_NAME,
-        data: args.input,
-        target: { id: args.id },
+        tableName: CUSTOMER_TABLE_NAME,
+        data,
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },
-    deleteCustomer: async (obj, args, ctx, info) => {
+    deleteCustomer: async (obj, { id }, ctx, info) => {
       return await dataBaseService.deleteNode({
-        tableName: TABLE_NAME,
-        target: { id: args.id },
+        tableName: CUSTOMER_TABLE_NAME,
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },

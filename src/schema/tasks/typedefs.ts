@@ -32,10 +32,10 @@ export const typeDefs = gql`
   }
 
   extend type Mutation {
-    createTask(input: NewTaskData!): Task!
-    updateTask(id: ID! input: NewTaskData!): Task!
+    createTask(data: NewTaskData!): Task!
+    updateTask(id: ID! data: NewTaskData!): Task!
     deleteTask(id: ID!): Task!
-    setAssignee(input: NewAssigneeData!): Assignee!
+    setAssignee(data: NewAssigneeData!): Assignee!
     unsetAssignee(id: ID!): Assignee!
   }
 

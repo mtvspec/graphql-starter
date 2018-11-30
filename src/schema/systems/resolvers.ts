@@ -5,96 +5,96 @@ const SYSTEM_COMPONENT_TABLE_NAME = 'system_component'
 
 export const resolvers = {
   Query: {
-    allSystems: async (obj, args, ctx, info) => {
+    allSystems: async (obj, { orderBy = 'id' }, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: SYSTEM_TABLE_NAME,
         fields: ['id', 'name', 'description'], // TODO: refactor this (systemComponents - derrived field)
-        orderBy: args.orderBy || 'id',
+        orderBy,
       })
     },
-    system: async (obj, args, ctx, info) => {
+    system: async (obj, { id }, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: SYSTEM_TABLE_NAME,
         fields: ['id', 'name', 'description'], // TODO: refactor this (systemComponents - derrived field)
-        target: { id: args.id },
+        target: { id },
       })
     },
-    allSystemComponents: async (obj, args, ctx, info) => {
+    allSystemComponents: async (obj, { orderBy = 'id' }, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        orderBy: args.orderBy || 'id',
+        orderBy,
       })
     },
-    systemComponent: async (obj, args, ctx, info) => {
+    systemComponent: async (obj, { id }, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        target: { id: args.id },
+        target: { id },
       })
     },
   },
   System: {
-    systemComponents: async (obj, args, ctx, info) => {
+    systemComponents: async ({ id }, { orderBy = 'id' }, ctx, info) => {
       return await dataBaseService.getNodesByTarget({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        target: { system: obj.id },
-        orderBy: args.orderBy || 'id'
+        target: { system: id },
+        orderBy,
       })
     }
   },
   SystemComponent: {
-    system: async (obj, args, ctx, info) => {
+    system: async ({ system }, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: SYSTEM_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        target: { id: obj.system }
+        target: { id: system }
       })
     }
   },
   Mutation: {
-    createSystem: async (obj, args, ctx, info) => {
+    createSystem: async (obj, { data }, ctx, info) => {
       return await dataBaseService.createNode({
         tableName: SYSTEM_TABLE_NAME,
-        data: args.input,
+        data,
         returning: ctx.requestedFields(info),
       })
     },
-    updateSystem: async (obj, args, ctx, info) => {
+    updateSystem: async (obj, { id, data }, ctx, info) => {
       return await dataBaseService.updateNode({
         tableName: SYSTEM_TABLE_NAME,
-        data: args.input,
-        target: { id: args.id },
+        data,
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },
-    deleteSystem: async (obj, args, ctx, info) => {
+    deleteSystem: async (obj, { id }, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: SYSTEM_TABLE_NAME,
-        target: { id: args.id },
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },
-    createSystemComponent: async (obj, args, ctx, info) => {
+    createSystemComponent: async (obj, { data }, ctx, info) => {
       return await dataBaseService.createNode({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
-        data: args.input,
+        data,
         returning: ctx.requestedFields(info),
       })
     },
-    updateSystemComponent: async (obj, args, ctx, info) => {
+    updateSystemComponent: async (obj, { id, data }, ctx, info) => {
       return await dataBaseService.updateNode({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
-        data: args.input,
-        target: { id: args.id },
+        data,
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },
-    deleteSystemComponent: async (obj, args, ctx, info) => {
+    deleteSystemComponent: async (obj, { id }, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: SYSTEM_COMPONENT_TABLE_NAME,
-        target: { id: args.id },
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },

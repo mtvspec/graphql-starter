@@ -1,32 +1,37 @@
-import { dataBaseService, DatabaseService } from '../../services/database.service'
+import { dataBaseService } from '../../services/database.service'
 
-const TABLE_NAME: string = 'requirement'
+// TODO: refactor
+const REQUIREMENT_TABLE_NAME: string = 'requirement'
+const REQUIREMENT_SOURCE_TABLE_NAME: string = 'requirement_source'
+const REQUIREMENT_STAKEHOLDER_TABLE_NAME: string = 'requirement_stakeholder'
+const SOURCE_TABLE_NAME: string = 'source'
+const STAKEHOLDER_TABLE_NAME: string = 'stakeholder'
 
 export const resolvers = {
   Query: {
     allRequirements: () => ({}),
     requirement: async (obj, { id }, ctx, info) => {
       return await dataBaseService.getNode({
-        tableName: TABLE_NAME,
-        fields: ['id', 'title', 'description'],
+        tableName: REQUIREMENT_TABLE_NAME,
+        fields: ['id', 'title', 'description'], // TODO: refactor this
         target: { id },
       })
     },
   },
   Requirement: {
-    requirementSource: async (obj, args, ctx, info) => {
+    requirementSource: async ({ id }, args, ctx, info) => {
       const source = await dataBaseService.getNode({
-        tableName: 'requirement_source',
-        fields: ['id', 'requirement', 'source'],
-        target: { requirement: obj.id }
+        tableName: REQUIREMENT_SOURCE_TABLE_NAME,
+        fields: ['id', 'requirement', 'source'], // TODO: refactor this
+        target: { requirement: id }
       })
       if (source) {
         return source
       } else {
         const stakeholder = await dataBaseService.getNode({
-          tableName: 'requirement_stakeholder',
-          fields: ['id', 'requirement', 'stakeholder'],
-          target: { requirement: obj.id }
+          tableName: REQUIREMENT_STAKEHOLDER_TABLE_NAME,
+          fields: ['id', 'requirement', 'stakeholder'], // TODO: refactor this
+          target: { requirement: id }
         })
         if (stakeholder) {
           return stakeholder
@@ -35,21 +40,21 @@ export const resolvers = {
     },
   },
   RequirementSource: {
-    source: async (obj, args, ctx, info) => {
-      if (obj.source) {
+    source: async ({ source, stakeholder }, args, ctx, info) => {
+      if (source) {
         const requirement_source = await dataBaseService.getNode({
-          tableName: 'source',
-          fields: ['id', 'source'],
-          target: { id: obj.source }
+          tableName: SOURCE_TABLE_NAME,
+          fields: ['id', 'source'],  // TODO: refactor this
+          target: { id: source }
         })
         if (requirement_source) {
           return requirement_source
         }
-      } else if (obj.stakeholder) {
+      } else if (stakeholder) {
         const requirement_stakeholder = await dataBaseService.getNode({
-          tableName: 'stakeholder',
-          fields: ['id', 'person'],
-          target: { id: obj.stakeholder }
+          tableName: STAKEHOLDER_TABLE_NAME,
+          fields: ['id', 'person'],  // TODO: refactor this
+          target: { id: stakeholder }
         })
         if (requirement_stakeholder) {
           return requirement_stakeholder
@@ -62,16 +67,16 @@ export const resolvers = {
   RequirementsConnection: {
     totalCount: () => {
       return dataBaseService.getNodesCount({
-        tableName: TABLE_NAME,
+        tableName: REQUIREMENT_TABLE_NAME,
         countFieldName: 'id',
         as: 'totalCount'
       })
     },
-    requirements: (obj, args, ctx, info) => {
+    requirements: (obj, { orderBy = 'id' }, ctx, info) => {
       return dataBaseService.getNodes({
-        tableName: TABLE_NAME,
-        fields: ['id', 'title', 'description'],
-        orderBy: args.orderBy || 'id'
+        tableName: REQUIREMENT_TABLE_NAME,
+        fields: ['id', 'title', 'description'], // TODO: refactor
+        orderBy,
       })
     },
   },
@@ -92,24 +97,24 @@ export const resolvers = {
     }
   },
   Mutation: {
-    createRequirement: (obj, { input }, ctx, info) => {
+    createRequirement: (obj, { data }, ctx, info) => {
       return dataBaseService.createNode({
-        tableName: TABLE_NAME,
-        data: input,
+        tableName: REQUIREMENT_TABLE_NAME,
+        data,
         returning: ctx.requestedFields(info),
       })
     },
-    updateRequirement: (obj, { id, input }, ctx, info) => {
+    updateRequirement: (obj, { id, data }, ctx, info) => {
       return dataBaseService.updateNode({
-        tableName: TABLE_NAME,
-        data: input,
+        tableName: REQUIREMENT_TABLE_NAME,
+        data,
         target: { id },
         returning: ctx.requestedFields(info),
       })
     },
     deleteRequirement: (obj, { id }, ctx, info) => {
       return dataBaseService.deleteNode({
-        tableName: TABLE_NAME,
+        tableName: REQUIREMENT_TABLE_NAME,
         target: { id },
         returning: ctx.requestedFields(info)
       })

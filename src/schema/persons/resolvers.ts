@@ -1,44 +1,44 @@
 import { dataBaseService } from '../../services/database.service'
 
-const TABLE_NAME: string = 'person'
+const PERSON_TABLE_NAME: string = 'person'
 
 export const resolvers = {
   Query: {
-    allPersons: async (obj, args, ctx, info) => {
+    allPersons: async (obj, { orderBy = 'id' }, ctx, info) => {
       return await dataBaseService.getNodes({
-        tableName: TABLE_NAME,
+        tableName: PERSON_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        orderBy: args.orderBy || 'id'
+        orderBy,
       })
     },
-    person: async (obj, args, ctx, info) => {
+    person: async (obj, { id }, ctx, info) => {
       return await dataBaseService.getNode({
-        tableName: TABLE_NAME,
+        tableName: PERSON_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        target: { id: args.id }
+        target: { id }
       })
     },
   },
   Mutation: {
-    createPerson: async (obj, args, ctx, info) => {
+    createPerson: async (obj, { data }, ctx, info) => {
       return await dataBaseService.createNode({
-        tableName: TABLE_NAME,
-        data: args.input,
+        tableName: PERSON_TABLE_NAME,
+        data,
         returning: ctx.requestedFields(info),
       })
     },
-    updatePerson: async (obj, args, ctx, info) => {
+    updatePerson: async (obj, { id, data }, ctx, info) => {
       return await dataBaseService.updateNode({
-        tableName: TABLE_NAME,
-        data: args.input,
-        target: { id: args.id },
+        tableName: PERSON_TABLE_NAME,
+        data,
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },
-    deletePerson: async (obj, args, ctx, info) => {
+    deletePerson: async (obj, { id }, ctx, info) => {
       return await dataBaseService.deleteNode({
-        tableName: TABLE_NAME,
-        target: { id: args.id },
+        tableName: PERSON_TABLE_NAME,
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     }

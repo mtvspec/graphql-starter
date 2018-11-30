@@ -3,9 +3,13 @@ import gql from 'graphql-tag'
 export const typeDefs = gql`
 
   extend type Query {
-    allSystems: [System!]
+    allSystems(
+      orderBy: SystemOrderByFields
+    ): [System!]
     system(id: ID!): System!
-    allSystemComponents: [SystemComponent!]
+    allSystemComponents(
+      orderBy: SystemComponentOrderByFields
+    ): [SystemComponent!]
     systemComponent: SystemComponent!
   }
 
@@ -14,6 +18,12 @@ export const typeDefs = gql`
     name: String!
     description: String
     systemComponents: [SystemComponent!]
+  }
+
+  enum SystemOrderByFields {
+    id
+    name
+    description
   }
 
   input NewSystemData {
@@ -28,6 +38,12 @@ export const typeDefs = gql`
     description: String
   }
 
+  enum SystemComponentOrderByFields {
+    id
+    name
+    description
+  }
+
   input NewSystemComponentData {
     system: ID!
     name: String!
@@ -35,11 +51,11 @@ export const typeDefs = gql`
   }
 
   extend type Mutation {
-    createSystem(input: NewSystemData!): System!
-    updateSystem(id: ID! input: NewSystemData!): System!
+    createSystem(data: NewSystemData!): System!
+    updateSystem(id: ID! data: NewSystemData!): System!
     deleteSystem(id: ID!): System!
-    createSystemComponent(input: NewSystemComponentData!): SystemComponent!
-    updateSystemComponent(id: ID! input: NewSystemComponentData!): SystemComponent!
+    createSystemComponent(data: NewSystemComponentData!): SystemComponent!
+    updateSystemComponent(id: ID! data: NewSystemComponentData!): SystemComponent!
     deleteSystemComponent(id: ID!): SystemComponent!
   }
 

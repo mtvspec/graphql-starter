@@ -3,7 +3,9 @@ import gql from "graphql-tag"
 export const typeDefs = gql`
 
   extend type Query {
-    allPersons: [Person!]
+    allPersons(
+      orderBy: PersonOrderByFields
+    ): [Person!]
     person(id: ID!): Person!
   }
 
@@ -13,6 +15,14 @@ export const typeDefs = gql`
     lastName: String
     middleName: String
     dob: String
+  }
+
+  enum PersonOrderByFields {
+    id
+    firstName
+    lastName
+    middleName
+    dob
   }
 
   input NewPersonData {
@@ -25,8 +35,8 @@ export const typeDefs = gql`
   scalar PersonFirstName
 
   extend type Mutation {
-    createPerson(input: NewPersonData!): Person!
-    updatePerson(id: ID! input: NewPersonData!): Person!
+    createPerson(data: NewPersonData!): Person!
+    updatePerson(id: ID! data: NewPersonData!): Person!
     deletePerson(id: ID!): Person!
   }
 

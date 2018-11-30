@@ -3,7 +3,9 @@ import gql from "graphql-tag"
 export const typeDefs = gql`
 
   extend type Query {
-    allCustomers: [Customer!]
+    allCustomers(
+      orderBy: CustomerOrderFields
+    ): [Customer!]
     customer(id: ID!): Customer!
   }
 
@@ -13,14 +15,20 @@ export const typeDefs = gql`
     description: String
   }
 
+  enum CustomerOrderFields {
+    id
+    name
+    description
+  }
+
   input NewCustomerData {
     name: String!
     description: String
   }
 
   extend type Mutation {
-    createCustomer(input: NewCustomerData!): Customer!
-    updateCustomer(id: ID! input: NewCustomerData!): Customer!
+    createCustomer(data: NewCustomerData!): Customer!
+    updateCustomer(id: ID! data: NewCustomerData!): Customer!
     deleteCustomer(id: ID!): Customer!
   }
 

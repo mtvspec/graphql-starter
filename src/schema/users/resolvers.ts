@@ -1,50 +1,51 @@
 import { dataBaseService } from '../../services/database.service'
 import * as bcrypt from 'bcrypt'
 
-const TABLE_NAME: string = 'user'
+const USER_TABLE_NAME: string = 'user'
+const PERSON_TABLE_NAME: string = 'person'
 
 export const resolvers = {
   Query: {
-    allUsers: (obj, args, ctx, info) => {
+    allUsers: (obj, { orderBy = 'id' }, { requestedFields }, info) => {
       return dataBaseService.getNodes({
-        tableName: TABLE_NAME,
-        fields: ctx.requestedFields(info),
-        orderBy: 'id'
+        tableName: USER_TABLE_NAME,
+        fields: requestedFields(info),
+        orderBy,
       })
     }
   },
   User: {
-    person: (obj, args, ctx, info) => {
+    person: ({ person }, args, { requestedFields }, info) => {
       return dataBaseService.getNode({
-        tableName: 'person',
-        fields: ctx.requestedFields(info),
-        target: { id: obj.person }
+        tableName: PERSON_TABLE_NAME,
+        fields: requestedFields(info),
+        target: { id: person }
       })
     }
   },
   Mutation: {
-    createUser: (obj, args, ctx, info) => {
-      const password = bcrypt.hashSync(args.input.password, 10)
-      args.input.password = password
+    createUser: (obj, { data }, { requestedFields }, info) => {
+      const password = bcrypt.hashSync(data.input.password, 10)
+      data.input.password = password
       return dataBaseService.createNode({
-        tableName: TABLE_NAME,
-        data: args.input,
-        returning: ctx.requestedFields(info),
+        tableName: USER_TABLE_NAME,
+        data,
+        returning: requestedFields(info),
       })
     },
-    updateUser: (obj, args, ctx, info) => {
+    updateUser: (obj, { id, data }, { requestedFields }, info) => {
       return dataBaseService.updateNode({
-        tableName: TABLE_NAME,
-        data: args.input,
-        target: { id: args.id },
-        returning: ctx.requestedFields(info),
+        tableName: USER_TABLE_NAME,
+        data,
+        target: { id },
+        returning: requestedFields(info),
       })
     },
-    deleteUser: (obj, args, ctx, info) => {
+    deleteUser: (obj, { id }, { requestedFields }, info) => {
       return dataBaseService.deleteNode({
-        tableName: TABLE_NAME,
-        target: { id: args.id },
-        returning: ctx.requestedFields(info),
+        tableName: USER_TABLE_NAME,
+        target: { id },
+        returning: requestedFields(info),
       })
     }
   }

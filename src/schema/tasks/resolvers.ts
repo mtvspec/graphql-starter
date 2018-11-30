@@ -1,89 +1,91 @@
 import { dataBaseService } from "../../services/database.service"
 
+// TODO: refactor
 const TASK_TABLE_NAME: string = 'task'
 const TASK_ASSIGNEE_TABLE_NAME: string = 'task_assignee'
+const PROJECT_MEMBER_TABLE_NAME: string = 'project_member'
 
 export const resolvers = {
   Query: {
-    allTasks: async (obj, args, ctx, info) => {
+    allTasks: async (obj, { orderBy = 'id' }, ctx, info) => {
       return await dataBaseService.getNodes({
         tableName: TASK_TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
-        orderBy: 'id',
+        fields: ctx.requestedFields(info),
+        orderBy,
       })
     },
-    task: async (obj, args, ctx, info) => {
+    task: async (obj, { id }, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: TASK_TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
-        target: { id: args.id },
+        fields: ctx.requestedFields(info),
+        target: { id },
       })
     },
-    allAssignees: async (obj, args, ctx, info) => {
+    allAssignees: async (obj, { orderBy = 'id' }, ctx, info) => {
       return await dataBaseService.getNodes({
-        tableName: 'task_assignee',
+        tableName: TASK_ASSIGNEE_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        orderBy: args.orderBy || 'id',
+        orderBy,
       })
     },
-    assignee: async (obj, args, ctx, info) => {
+    assignee: async (obj, { id }, ctx, info) => {
       return await dataBaseService.getNode({
-        tableName: 'task_assignee',
+        tableName: TASK_ASSIGNEE_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        target: { id: args.id },
+        target: { id },
       })
     }
   },
   Assignee: {
-    task: async (obj, args, ctx, info) => {
+    task: async ({ task }, args, ctx, info) => {
       return await dataBaseService.getNode({
         tableName: TASK_TABLE_NAME,
-        fields: Object.keys(ctx.selectionSet(info)),
-        target: { id: obj.task },
+        fields: ctx.requestedFields(info),
+        target: { id: task },
       })
     },
-    assignee: async (obj, args, ctx, info) => {
+    assignee: async ({ assignee }, args, ctx, info) => {
       return await dataBaseService.getNode({
-        tableName: 'project_member',
+        tableName: PROJECT_MEMBER_TABLE_NAME,
         fields: ctx.requestedFields(info),
-        target: { id: obj.assignee },
+        target: { id: assignee },
       })
     }
   },
   Mutation: {
-    createTask: async (obj, args, ctx, info) => {
+    createTask: async (obj, { data }, ctx, info) => {
       return await dataBaseService.createNode({
         tableName: TASK_TABLE_NAME,
-        data: args.input,
+        data,
         returning: ctx.requestedFields(info),
       })
     },
-    updateTask: async (obj, args, ctx, info) => {
+    updateTask: async (obj, { id, data }, ctx, info) => {
       return await dataBaseService.updateNode({
         tableName: TASK_TABLE_NAME,
-        data: args.input,
-        target: { id: args.id },
+        data,
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },
-    deleteTask: async (obj, args, ctx, info) => {
+    deleteTask: async (obj, { id }, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: TASK_TABLE_NAME,
-        target: { id: args.id },
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     },
-    setAssignee: async (obj, args, ctx, info) => {
+    setAssignee: async (obj, { data }, ctx, info) => {
       return await dataBaseService.createNode({
         tableName: TASK_ASSIGNEE_TABLE_NAME,
-        data: args.input,
+        data,
         returning: ctx.requestedFields(info),
       })
     },
-    unsetAssignee: async (obj, args, ctx, info) => {
+    unsetAssignee: async (obj, { id }, ctx, info) => {
       return await dataBaseService.deleteNode({
         tableName: TASK_ASSIGNEE_TABLE_NAME,
-        target: { id: args.id },
+        target: { id },
         returning: ctx.requestedFields(info),
       })
     }

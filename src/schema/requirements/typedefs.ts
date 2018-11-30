@@ -14,6 +14,12 @@ export const typeDefs = gql`
     description: String
   }
 
+  enum RequirementOrderByFields {
+    id
+    title
+    description
+  }
+
   input NewRequirementData {
     title: String!
     description: String
@@ -38,7 +44,9 @@ export const typeDefs = gql`
 
   type RequirementsConnection {
     totalCount: Int!
-    requirements: [Requirement!]
+    requirements(
+      orderBy: RequirementOrderByFields
+    ): [Requirement!]
   }
 
   type RequirementEdge {
@@ -56,8 +64,8 @@ export const typeDefs = gql`
   }
 
   extend type Mutation {
-    createRequirement(input: NewRequirementData!): Requirement!
-    updateRequirement(id: ID! input: NewRequirementData!): Requirement!
+    createRequirement(data: NewRequirementData!): Requirement!
+    updateRequirement(id: ID! data: NewRequirementData!): Requirement!
     deleteRequirement(id: ID!): Requirement!
   }
 

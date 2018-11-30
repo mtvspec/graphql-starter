@@ -1,9 +1,11 @@
-import gql from "graphql-tag"
+import gql from 'graphql-tag'
 
 export const typeDefs = gql`
 
   extend type Query {
-    allProjects(orderBy: String): [Project!]
+    allProjects(
+      orderBy: ProjectOrderByFields
+    ): [Project!]
     project(id: ID!): Project!
     allProjectMembers: [ProjectMember!]
   }
@@ -13,6 +15,12 @@ export const typeDefs = gql`
     customer: Customer!
     title: String!
     description: String
+  }
+
+  enum ProjectOrderByFields {
+    id
+    title
+    description
   }
 
   input NewProjectData {
@@ -33,11 +41,11 @@ export const typeDefs = gql`
   }
 
   extend type Mutation {
-    createProject(input: NewProjectData!): Project!
-    updateProject(id: ID! input: NewProjectData!): Project!
+    createProject(data: NewProjectData!): Project!
+    updateProject(id: ID! data: NewProjectData!): Project!
     deleteProject(id: ID!): Project!
-    createProjectMember(input: NewProjectMemberData!): ProjectMember!
-    updateProjectMember(id: ID! input: NewProjectMemberData!): ProjectMember!
+    createProjectMember(data: NewProjectMemberData!): ProjectMember!
+    updateProjectMember(id: ID! data: NewProjectMemberData!): ProjectMember!
     deleteProjectMember(id: ID!): ProjectMember!
   }
 
