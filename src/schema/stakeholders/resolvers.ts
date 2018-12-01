@@ -4,10 +4,10 @@ const STAKEHOLDER_TABLE_NAME: string = 'stakeholder'
 
 export const resolvers = {
   Query: {
-    allStakeholders: (obj, { orderBy = 'id' }, ctx, info) => {
-      return dataBaseService.getNodes({
+    allStakeholders: async (obj, { orderBy = 'id' }, { requestedFields }, info) => {
+      return await dataBaseService.getNodes({
         tableName: STAKEHOLDER_TABLE_NAME,
-        fields: ctx.requestedFields(info),
+        fields: ['id', 'person'],
         orderBy,
       })
     },
@@ -23,7 +23,7 @@ export const resolvers = {
     person: ({ person }, args, ctx, info) => {
       return dataBaseService.getNode({
         tableName: 'person', // TODO: refactor this
-        fields: ctx.requestedFields(info),
+        fields: ['id', 'firstName', 'lastName', 'middleName', 'dob'],
         target: { id: person }
       })
     },
